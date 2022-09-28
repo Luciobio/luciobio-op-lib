@@ -86,3 +86,11 @@ button:hover{
 .whiteLink:hover{
     color: #04A118;
 }
+
+.green{
+  color: rgb(3, 129, 3) !important
+}
+
+.red{
+  color: rgb(255, 0, 0) !important
+}
