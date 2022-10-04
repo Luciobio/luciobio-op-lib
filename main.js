@@ -23,6 +23,35 @@ let items = [];
 }
 setItems(); */
 
+//Rick and Morti API
+/* let rymapi
+const getCharacters = () => {
+    const results = fetch('https://rickandmortyapi.com/api/character')
+    results
+        .then(res => {
+            rymapi = res.json()
+            console.log(rymapi)
+        })
+        
+};
+
+getCharacters(); */
+
+const charactersFetch = (Url) => {
+    return( fetch(Url)
+       .then(response => response.json())
+    )
+   };
+
+charactersFetch(`https://rickandmortyapi.com/api/character`)
+.then(data => {
+  if (data.results) {
+    items = data.results
+  }
+})
+.catch(err => console.log(err))
+
+console.log(items)
 const iva = 0.2
 
 let cart = [];
@@ -37,8 +66,8 @@ const showItems = (array) => {
         const {
             name,
             image,
-            species: price,
-            status: stock,
+            /* species:  */price,
+            /* status:  */stock,
             id
         } = e;
         

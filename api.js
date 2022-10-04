@@ -6,7 +6,7 @@ const items = [
         description: "FLIDAS está determinado a derrumbar el sistema desde adentro. Fanátrico de la tecnología y las teorías conspirativas, Flidas mantiene una apariencia adorable e inocente; nadie sabe que dentro de su tachito esconde una base equipada y lista para hackear a quien se cruce en su camino.",
         category: "Accesories",
         stock: 5,
-        img: './img/cogonauts-flidas-grindr.webp'
+        image: './img/cogonauts-flidas-grindr.webp'
     },
     {
         id: 2,
@@ -15,7 +15,7 @@ const items = [
         description: "• EDEN - Queens paradise es un sustrato de uso profesional, que ofrece óptimas condiciones de siembra y/o trasplante, por su excelente aireación, retención de agua, reacción (pH) y Ce.",
         category: "Growing",
         stock: 0,
-        img: './img/eden-substrate.jpg'
+        image: './img/eden-substrate.jpg'
     },
     {
         id: 3,
@@ -24,7 +24,7 @@ const items = [
         description: "Lámpara de alta presión 400w Sodio, tubular transparente con rosca E40. Ideal para cultivo indoor, y floración en general.",
         category: "Lighting",
         stock: 10,
-        img: './img/sodium-lamp-400w.jpg'
+        image: './img/sodium-lamp-400w.jpg'
     }
 ];
 
@@ -40,12 +40,16 @@ export const getItems = () =>{
     })
 };
 
-//const API = 'items.json';
-const API = 'https://rickandmortyapi.com/api/character';
-
+const API = 'items.json';
 
 export const getData = async (res) =>{
     const response = await fetch(API);
+    const data = await response.json();
+    return data;
+}
+
+export const getData2 = async (res) =>{
+    const response = await fetch('https://rickandmortyapi.com/api/character');
     const data = await response.json();
     console.log(data.results)
     return data.results;
