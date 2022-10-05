@@ -1,32 +1,33 @@
-const items = [
-    {
-        id: 1,
-        name: "Cogonauts Flidas - Grindr",
-        price: 3500,
-        description: "FLIDAS está determinado a derrumbar el sistema desde adentro. Fanátrico de la tecnología y las teorías conspirativas, Flidas mantiene una apariencia adorable e inocente; nadie sabe que dentro de su tachito esconde una base equipada y lista para hackear a quien se cruce en su camino.",
-        category: "Accesories",
-        stock: 5,
-        img: './img/cogonauts-flidas-grindr.webp'
-    },
-    {
-        id: 2,
-        name: "Substrate Eden - 25L",
-        price: 3500,
-        description: "• EDEN - Queens paradise es un sustrato de uso profesional, que ofrece óptimas condiciones de siembra y/o trasplante, por su excelente aireación, retención de agua, reacción (pH) y Ce.",
-        category: "Growing",
-        stock: 0,
-        img: './img/eden-substrate.jpg'
-    },
-    {
-        id: 3,
-        name: "Sodium Lamp - 400w",
-        price: 3755,
-        description: "Lámpara de alta presión 400w Sodio, tubular transparente con rosca E40. Ideal para cultivo indoor, y floración en general.",
-        category: "Lighting",
-        stock: 10,
-        img: './img/sodium-lamp-400w.jpg'
+import { getItems, getData, getData2 } from './api.js';
+
+//TRAER ITEMS DE API.JS DE CON LA SINTAXIS TRADICIONAL DE PROMESAS
+let items = [];
+const setItems = async() => {
+    try {
+        items = await getItems();
+        LoadItems(items);
+        setEvents(); 
+    } catch (error) {
+        console.log(error);
     }
-];
+} 
+setItems();
+
+//TRAER ITEMS DE API.JS DE CON ASYNC/AWAIT
+/* let items = [];
+getItems()
+.then(response => {
+    items = response;
+    LoadItems(items);
+    setEvents();
+})
+.catch( err => console.log('El error es: ' + err.message)) */
+
+//TRAER ITEMS DE ARCHIVO JSON CON ASYNC/AWAIT
+//let items = await getData();
+
+//TRAER ITEMS DE LA API DE RICK Y MORTY
+//let items = await getData2();
 
 const iva = 0.2
 
@@ -36,35 +37,48 @@ const cardContainer = document.getElementById('cardContainer');
 
 const cartContainer = document.getElementById('cartContainer');
 
-items.forEach(e => {
-    // DESTRUCTURING
-    const {
-        name,
-        img,
-        price,
-        stock,
-        id
-    } = e;
-    
-    let card = document.createElement('div');
-    card.setAttribute('class', 'Item');
-    card.innerHTML = `
-        <img  alt=${name} src='${img}'/>
-        <h4>${name}</h4>
-        <h3>$ ${price}</h3>
-        ${/* OPERADOR TERNARIO Y OPERADOR OR || */''}
-        <h3 class=${stock != 0 ? 'green' : 'red'}> Stock:${stock || 'Out of Stock'}</h3> 
-        <button class='addbtn' id='${id}'><a class='whiteLink'>ADD TO CART</a></button>
-    `;
-    cardContainer.appendChild(card);
-});
+
+const LoadItems = (items) =>{
+    items.forEach(e => {
+        // DESTRUCTURING
+        const {
+            name,
+            //DESCOMENTAR PARA RICK Y MORTY
+            /* image: img,
+            species: price,
+            status: stock, */
+            img,
+            stock,
+            price,
+            id
+        } = e;
+        
+        let card = document.createElement('div');
+        card.setAttribute('class', 'Item');
+        card.innerHTML = `
+            <img  alt=${name} src='${img}'/>
+            <h4>${name}</h4>
+            <h3>$ ${price}</h3>
+            ${/* OPERADOR TERNARIO Y OPERADOR OR || */''}
+            <h3 class=${stock != 0 ? 'green' : 'red'}> Stock:${stock || 'Out of Stock'}</h3> 
+            <button class='addbtn' id='${id}'><a class='whiteLink'>ADD TO CART</a></button>
+        `;
+        cardContainer.appendChild(card);
+    });
+}
 
 // EVENTS
-const buttons = document.getElementsByClassName('addbtn');
+const setEvents = () => {
+    const buttons = document.getElementsByClassName('addbtn');
 
-for (let btn of buttons) {
-    btn.addEventListener("click", () => addToCart(btn.id));
-};
+    for (let btn of buttons) {
+        btn.addEventListener("click", () => addToCart(btn.id));
+    };
+}
+
+//DESCOMENTAR EN CASO DE TRAER DE JSON
+/* LoadItems(items);
+setEvents(); */
 
 const showCartBtn = document.getElementById('showCart');
 showCartBtn.addEventListener('click', () => showCart());
