@@ -1,182 +1,214 @@
 class Item {
-    constructor(id, name, price, description, category, stock, img) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.category = category;
-        this.stock = stock;
-        this.img = img;
-    }
+  constructor(id, name, price, description, category, stock, img) {
+    this.id = id;
+    this.name = name;
+    this.price = price;
+    this.description = description;
+    this.category = category;
+    this.stock = stock;
+    this.img = img;
+  }
 }
 
 // FUNCTIONS
 const LoadItems = (catalog) => {
-    catalog.forEach(e => {
-        const {
-            name,
-            description,
-            img,
-            stock,
-            price,
-            id
-        } = e;
-
-        let card = document.createElement('div');
-        card.setAttribute('class', 'Item');
-        card.innerHTML = `
-            <img  alt=${name} src='${img}'/>
-            <h4>${name}</h4>
+  catalog.forEach((e) => {
+    const { name: nombre, img: imagen, description, price, stock, id } = e;
+    let card = document.createElement("div");
+    card.setAttribute("class", "Item");
+    card.innerHTML = `
+            <img  alt=${nombre} src='${imagen}'/>
+            <h4>${nombre}</h4>
             <p>${description}</p>
             <h3>$${price}</h3>
-            <h3 class=${stock != 0 ? 'green' : 'red'}> Stock:${stock || 'Out of Stock'} </h3> 
+            <h3 class= ${stock ? "green" : "red"}> Stock:${
+      stock || " No hay Stock"
+    }</h3> 
             <button class='addbtn' id='${id}'><a class='whiteLink'>ADD TO CART</a></button>
         `;
-        cardContainer.appendChild(card);
-    });
-
-}
-
-const addToCart = (id) => {
-    cart = JSON.parse(localStorage.getItem('cart'));
-    const cartItem = catalog.find(i => i.id == id);
-    if (cartItem.stock > 0) {
-        const item4cart = { ...cartItem, stock: cartItem.stock - 1, quantity: 1 }
-        cart.push(item4cart);
-
-        localStorage.setItem('cart', JSON.stringify(cart));
-
-        // Aquí uso Toastify
-        Toastify({
-            text: `${item4cart.name} agregado con éxito 🌿`,
-            duration: 3000,
-            newWindow: false,
-            close: false,
-            gravity: "top", // `top` or `bottom`
-            position: "left", // `left`, `center` or `right`
-            stopOnFocus: true, // Prevents dismissing of toast on hover
-            style: {
-                background: "linear-gradient(to right, #00b09b, #96c93d)",
-            }
-        }).showToast();
-    } else {
-
-        //Sweet Alert
-        Swal.fire({
-            icon: 'error',
-            title: 'Ups!',
-            text: 'No hay stock del producto seleccionado',
-            showConfirmButton: false,
-            timer: 3000
-        })
-    }
+    cardContainer.appendChild(card);
+  });
 };
 
-const emptyCart = () => {
-    cartContainer.innerHTML = ``;
-    let sign = document.createElement('h2');
-    sign.innerHTML = `No items in the Cart`;
-    cartContainer.appendChild(sign);
+const addToCart = (id) => {
+  const cartItem = catalog.find((i) => i.id == id);
+  if (cartItem.stock > 0) {
+    const toast = (name) => {
+      Toastify({
+        text: `${name} agregado con éxito 🍁`,
+        duration: 3000,
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+      }).showToast();
+    };
+    let alreadyInCart = cart.some((item) => item.id == id);
+    // chequeo si el item ya está en el carrito
+    if (alreadyInCart) {
+      // Obtengo el indice del item en el carrito
+      const itemIndex = cart.findIndex((e) => e.id === cartItem.id);
+      const item4cart = cart[itemIndex];
+      // Modifico la cantidad y el total
+      item4cart.quantity++;
+      item4cart.total = item4cart.price * item4cart.quantity;
+      localStorage.setItem("cart", JSON.stringify(cart));
+      toast(item4cart.name);
+    } else {
+      const item4cart = {
+        ...cartItem,
+        stock: cartItem.stock - 1,
+        quantity: 1,
+        total: cartItem.price,
+      };
+      cart.push(item4cart);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      toast(item4cart.name);
+    }
+  } else {
+    Swal.mixin({
+      toast: true,
+      position: "top-right",
+      iconColor: "white",
+      customClass: {
+        popup: "colored-toast",
+      },
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    }).fire({
+      icon: "error",
+      title: "No hay stock del producto seleccionado",
+    });
+  }
+};
+
+const cartIsEmpty = () => {
+  cartContainer.innerHTML = ``;
+  let sign = document.createElement("h2");
+  sign.innerHTML = `No items in the Cart`;
+  cartContainer.appendChild(sign);
 };
 
 const itemsInCart = () => {
-    cartContainer.innerHTML = ``;
-    cart.forEach(e => {
-        const { name, price } = e
-        let cartItem = document.createElement('div');
-        cartItem.innerHTML = `
-            <h4>${name}</h4>
-            <h3>$${price}</h3>
+  cartContainer.innerHTML = ``;
+  cart.forEach((e) => {
+    const { name, quantity, total } = e;
+    let cartItem = document.createElement("div");
+    cartItem.innerHTML = `
+            <h3>${name}</h3>
+            <h4> Cantidad: ${quantity}</h4>
+            <h4>$${total}</h4>
             `;
-        cartContainer.appendChild(cartItem);
-    })
+    cartContainer.appendChild(cartItem);
+  });
 };
 
-const showCart = () => cart.length == 0 ? emptyCart() : itemsInCart();
+const showCart = () => (cart.length ? itemsInCart() : cartIsEmpty());
 
 const order = () => {
-    let message = '';
-    for (let i = 0; i < cart.length; i++) {
-        message += `<h4>${i + 1} - ${cart[i].name} - $${cart[i].price}</h4>`
-    }
-    return message
+  let message = "";
+  cart.forEach((e) => {
+    const { quantity, name, total } = e;
+    message += `<p>(x${quantity}) - ${name} - $${total}</p>`;
+  });
+  return message;
 };
 
-const total = () => cart.reduce((acc, val) => acc + val.price, 0);
+const total = () => cart.reduce((acc, val) => acc + val.total, 0);
 
 const checkOutFunction = () => {
-    if (cart.length) {
-        //SWEET ALERT
-        Swal.fire({
-            icon: 'success',
-            title: 'Exito',
-            // Utilizo HTML para introducir saltos de linea
-            html: `Su orden:${order()}Ha sido generada con éxito</br>
-            Fecha: ${DateTime.now().setLocale('es').toLocaleString()}`, // LUXON .setLocale('es') formatea la fecha como se utiliza en Argentina dd/mm/aa
-            footer: `Precio total de su orden: $${total()}`
-        })
+  if (cart.length) {
+    const DateTime = luxon.DateTime;
+    const fecha = DateTime.now().setLocale("es").toLocaleString();
 
-        localStorage.setItem('cart', JSON.stringify([]));
-        cart = JSON.parse(localStorage.getItem('cart'));
-        showCart();
-    } else {
-        // Alerta tipo TOAST creada con SWEET ALERT (NO SE CONFUNDAN)
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-right',
-            iconColor: 'white',
-            customClass: {
-                popup: 'colored-toast'
-            },
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        }).fire({
-            icon: 'error',
-            title: 'No hay items en el carrito'
-        })
-    }
+    Swal.fire({
+      icon: "success",
+      title: "Exito!",
+      html: `Su orden:\n${order()}Ha sido generada con éxito. \n`,
+      footer: `Fecha: ${fecha} - Precio total de su orden: $${total()}`,
+    });
+    localStorage.setItem("cart", JSON.stringify([]));
+    cart = JSON.parse(localStorage.getItem("cart"));
+    showCart();
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "No hay items en el carrito",
+      showConfirmButton: false,
+      timer: 3000,
+    });
+  }
 };
 
-
 // EJECUCION DEL CODIGO
-
-// Luxon
-const DateTime = luxon.DateTime
 
 // Genero mis productos y los pusheo a un array
 const items = [];
 
-items.push(new Item(1, "Cogonauts Flidas", 3500, "Grindr", "Accesories", 5, './img/cogonauts-flidas-grindr.webp'));
-items.push(new Item(2, "Substrate Eden", 2500, "Substrate - 25L", "Growing", 0, './img/eden-substrate.jpg'));
-items.push(new Item(3, "Sodium Lamp", 3755, "Lamp - 400w", "Lighting", 10, './img/sodium-lamp-400w.jpg'));
+items.push(
+  new Item(
+    1,
+    "Cogonauts Flidas",
+    3500,
+    "Grindr",
+    "Accesories",
+    5,
+    "./img/cogonauts-flidas-grindr.webp"
+  )
+);
+items.push(
+  new Item(
+    2,
+    "Substrate Eden",
+    2500,
+    "Substrate - 25L",
+    "Growing",
+    0,
+    "./img/eden-substrate.jpg"
+  )
+);
+items.push(
+  new Item(
+    3,
+    "Sodium Lamp",
+    3755,
+    "Lamp - 400w",
+    "Lighting",
+    10,
+    "./img/sodium-lamp-400w.jpg"
+  )
+);
 
-// Los Envío al Storage (En caso de que no se haya cargado aún)
-localStorage.getItem('catalog') ? console.log('El cátalogo ya está cargado') : localStorage.setItem('catalog', JSON.stringify(items));
+// Guardar el Catalogo en el Storage
+localStorage.getItem("catalog")
+  ? console.log("Ya esta cargado el catálogo en el storage")
+  : localStorage.setItem("catalog", JSON.stringify(items));
 
 // Determino donde se van a mostrar mi catálogo y carrito
-const cardContainer = document.getElementById('cardContainer');
-const cartContainer = document.getElementById('cartContainer');
+const cardContainer = document.getElementById("cardContainer");
+const cartContainer = document.getElementById("cartContainer");
 
-//Traigo mi catálogo de items del Storage y cargo mis productos en la página
-const catalog = JSON.parse(localStorage.getItem('catalog'));
+// Traigo catálogo del storage
+let catalog = JSON.parse(localStorage.getItem("catalog"));
+
+// Cargo mis productos en la página
 LoadItems(catalog);
 
-//Genero un array para el carrito y envío al Storage (En caso de que no haya items en el carrito aún)
-let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : localStorage.setItem('cart', JSON.stringify([]));
+// Genero un array para el carrito
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // EVENTS
 
-//Agrego eventos a los botones "ADD TOO CART"
-const buttons = document.getElementsByClassName('addbtn');
+// Agrego eventos a los botones "ADD TOO CART"
+const buttons = document.getElementsByClassName("addbtn");
 for (let btn of buttons) {
-    btn.addEventListener('click', () => addToCart(btn.id));
-};
+  btn.addEventListener("click", () => addToCart(btn.id));
+}
 
-//Agrego eventos al boton "SHOW CART"
-const showCartBtn = document.getElementById('showCart');
-showCartBtn.addEventListener('click', () => showCart());
+// Agrego eventos al boton "SHOW CART"
+const showCartBtn = document.getElementById("showCart");
+showCartBtn.addEventListener("click", () => showCart());
 
-//Agrego eventos al boton "CHECKOUT"
-const checkOut = document.getElementById('checkOut');
-checkOut.addEventListener('click', () => checkOutFunction());
+// Agrego eventos al boton "CHECKOUT"
+const checkOut = document.getElementById("checkOut");
+checkOut.addEventListener("click", () => checkOutFunction());
