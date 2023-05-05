@@ -27,5 +27,5 @@ let {[0], [1], [2]} arr
 // Spread Operator …
 const obj2 = {...obj, newProp: ‘value’}
 
-//Falsy = [0, null, undefined, NaN, false, “ ”]
+//Falsy = [0, null, undefined, NaN, false, “”]
 //Truthy = [1, ”a”, [], {}, function()]
