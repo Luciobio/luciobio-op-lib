@@ -41,13 +41,27 @@ export const getItems = () => {
     })
 }
 
+export const getItems2 = () => {
+    return new Promise((resolve, reject)=>{
+        if(items.length > 0){
+            setTimeout(()=> {
+                resolve(items);
+            },1500)
+        } else {
+            reject (new Error('No hay items para mostrar'))
+        }
+    })
+}
+
 //TRER ITEMS DE JSON CON FUNC ASINCRONICA
 const API = 'items.json'
+
 export const getData = async () => {
     const response = await fetch(API);
     const data = await response.json();
     return data;
 }
+
 
 //TRAER ITEMS DE RICK & MORTI API
 const API2 = 'https://rickandmortyapi.com/api/character'

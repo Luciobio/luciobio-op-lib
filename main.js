@@ -11,6 +11,16 @@ class Item {
 }
 
 // FUNCTIONS
+
+//Fetch al JSON (items.json)
+export const getData = async () => {
+  const API = 'items.json'
+  const response = await fetch(API);
+  const data = await response.json();
+  console.log(data);
+  return data;
+}
+
 const LoadItems = (catalog) => {
   catalog.forEach((e) => {
     const { name: nombre, img: imagen, description, price, stock, id } = e;
@@ -19,7 +29,6 @@ const LoadItems = (catalog) => {
     card.innerHTML = `
             <img  alt=${nombre} src='${imagen}'/>
             <h4>${nombre}</h4>
-            <p>${description}</p>
             <h3>$${price}</h3>
             <h3 class= ${stock ? "green" : "red"}> Stock:${
       stock || " No hay Stock"
@@ -142,47 +151,11 @@ const checkOutFunction = () => {
 
 // EJECUCION DEL CODIGO
 
-// Genero mis productos y los pusheo a un array
-const items = [];
-
-items.push(
-  new Item(
-    1,
-    "Cogonauts Flidas",
-    3500,
-    "Grindr",
-    "Accesories",
-    5,
-    "./img/cogonauts-flidas-grindr.webp"
-  )
-);
-items.push(
-  new Item(
-    2,
-    "Substrate Eden",
-    2500,
-    "Substrate - 25L",
-    "Growing",
-    0,
-    "./img/eden-substrate.jpg"
-  )
-);
-items.push(
-  new Item(
-    3,
-    "Sodium Lamp",
-    3755,
-    "Lamp - 400w",
-    "Lighting",
-    10,
-    "./img/sodium-lamp-400w.jpg"
-  )
-);
-
-// Guardar el Catalogo en el Storage
+// Guardar el Catalogo en el Storage 
+// Utilizo la función asyncrónica que hace el fetch: await getData()
 localStorage.getItem("catalog")
   ? console.log("Ya esta cargado el catálogo en el storage")
-  : localStorage.setItem("catalog", JSON.stringify(items));
+  : localStorage.setItem("catalog", JSON.stringify(await getData()));
 
 // Determino donde se van a mostrar mi catálogo y carrito
 const cardContainer = document.getElementById("cardContainer");
